@@ -1,5 +1,6 @@
 import streamlit as st
 import sqlite3
+import plotly.graph_objects as go
 
 # Function to get a database connection
 def get_db_connection():
@@ -43,6 +44,13 @@ def get_brawlers():
     conn.close()
     return brawlers
 
+# Function to create a pie chart for win rate
+def plot_win_rate_chart(win_rate):
+    # Pie chart for win rate
+    fig = go.Figure(data=[go.Pie(labels=['Wins', 'Losses'], values=[win_rate, 100 - win_rate])])
+    fig.update_layout(title="Win Rate Distribution")
+    return fig
+
 # Streamlit app layout
 st.title("Esports Team Database")
 
@@ -60,11 +68,17 @@ if selected_team:
     for player in players:
         st.write(f"**{player['first_name']} {player['last_name']}** (Username: {player['username']})")
 
-# Show brawlers
+# Show brawlers and stats
 st.header("Brawlers and Stats")
 brawlers = get_brawlers()
 for brawler in brawlers:
     st.write(f"**{brawler['name']}** (Type: {brawler['type']})")
     st.write(f"Played Games: {brawler['played_games']}, Pickrate: {brawler['pickrate']}%, Wins: {brawler['wins']}, Win Rate: {brawler['win_rate']}%")
     st.write(f"Bans: {brawler['bans']}, Ban Rate: {brawler['ban_rate']}%")
+    
+    # Plot the win rate pie chart
+    win_rate = brawler['win_rate']
+    win_rate_chart = plot_win_rate_chart(win_rate)
+    st.plotly_chart(win_rate_chart)
+    
     st.write("---")
